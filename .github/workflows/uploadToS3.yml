@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@master
     - uses: jakejarvis/s3-sync-action@master
       with:
-        args: --delete --exclude '.github/*' --exclude 'README.md' --exclude '.git/*'
+        args: --delete --exclude '.gitignore' --exclude '.github/*' --exclude 'README.md' --exclude '.git/*' --exclude 'video/*'
       env:
         AWS_S3_BUCKET: 'stokegabrielcyclepath.org.uk'
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
