@@ -14,7 +14,7 @@ jobs:
       uses: peter-evans/s3-backup@v1.0.0
       env:
         ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
-        MIRROR_TARGET: ${{ secrets.AWS_S3_BUCKET }}
+        MIRROR_TARGET: www.stokegabrielcyclepath.org.uk
         SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
       with:
         args: --overwrite --remove
