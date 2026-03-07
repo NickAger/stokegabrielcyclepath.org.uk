@@ -1,0 +1,76 @@
+# GitHub Actions workflow for deploying the website to S3 + CloudFront.
+#
+# Place this file in your WEBSITE repo (not the CDK repo).
+#
+# Prerequisites:
+#   1. Deploy the CDK DnsStack and WebsiteStack first to create the AWS resources.
+#   2. Copy the GithubActionsRoleArn output from DnsStack into the secret below.
+#   3. Copy the BucketName and DistributionId outputs from WebsiteStack into the
+#      variables below (or store them as GitHub secrets/variables).
+#
+# Required GitHub secrets:
+#   AWS_ROLE_ARN         — from DnsStack output "GithubActionsRoleArn"
+#
+# Required GitHub variables (Settings → Variables, or change to secrets):
+#   AWS_BUCKET_NAME      — from WebsiteStack output "BucketName"
+#   AWS_DISTRIBUTION_ID  — from WebsiteStack output "DistributionId"
+
+name: Deploy Website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # allow manual runs
+
+permissions:
+  id-token: write   # required for OIDC
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to S3 + CloudFront
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC — no long-lived keys)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-2
+
+      # ── Build step — adjust or remove for your stack ─────────────────────
+      # Examples:
+      #   Plain HTML: delete this step entirely
+      #   Jekyll:     run: bundle exec jekyll build
+      #   Next.js:    run: npm ci && npm run build
+      # - name: Build
+      #   run: |
+      #     echo "Add your build command here, e.g. npm ci && npm run build"
+      #     # The built output folder should match the --delete sync path below
+
+      # ── Sync to S3 ────────────────────────────────────────────────────────
+      # Adjust the source folder (here: "./public") to match your build output.
+      - name: Sync to S3
+        run: |
+          aws s3 sync ./public s3://${{ vars.AWS_BUCKET_NAME }} \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "*.html" \
+            --exclude "service-worker.js"
+
+          # HTML files get a shorter cache so updates are picked up quickly
+          aws s3 sync ./public s3://${{ vars.AWS_BUCKET_NAME }} \
+            --exclude "*" \
+            --include "*.html" \
+            --include "service-worker.js" \
+            --cache-control "public, max-age=0, must-revalidate"
+
+      # ── Invalidate CloudFront cache ───────────────────────────────────────
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ vars.AWS_DISTRIBUTION_ID }} \
+            --paths "/*"
