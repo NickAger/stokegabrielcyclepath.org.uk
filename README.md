@@ -1,4 +1,7 @@
 # stokegabrielcyclepath.org.uk
 
-* Fonts - 5. Konop - https://www.creativeboom.com/resources/top-20-fonts-that-will-be-popular-with-designers-in-2019/
+[![Deploy Website](https://github.com/NickAger/stokegabrielcyclepath.org.uk/actions/workflows/deploy.yml/badge.svg)](https://github.com/NickAger/stokegabrielcyclepath.org.uk/actions/workflows/deploy.yml)
+
+## Design resources
+
 * Bike icons - https://www.flaticon.com/icon-packs/bike
