@@ -52,11 +52,12 @@ jobs:
       #     # The built output folder should match the --delete sync path below
 
       # ── Sync to S3 ────────────────────────────────────────────────────────
-      # Adjust the source folder (here: "./public") to match your build output.
+      # but don't delete the `video/` folder since it contains large files that are not stored in github
       - name: Sync to S3
         run: |
           aws s3 sync ./public s3://${{ vars.AWS_BUCKET_NAME }} \
             --delete \
+            --exclude "video/*" \
             --cache-control "public, max-age=31536000, immutable" \
             --exclude "*.html" \
             --exclude "service-worker.js"
