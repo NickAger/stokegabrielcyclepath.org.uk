@@ -1,6 +1,6 @@
 # GitHub Actions workflow for deploying the website to S3 + CloudFront.
 #
-# Place this file in your WEBSITE repo (not the CDK repo).
+# This file is a copy of the file used in the github website content repository
 #
 # Prerequisites:
 #   1. Deploy the CDK DnsStack and WebsiteStack first to create the AWS resources.
@@ -52,12 +52,13 @@ jobs:
       #     # The built output folder should match the --delete sync path below
 
       # ── Sync to S3 ────────────────────────────────────────────────────────
-      # but don't delete the `video/` folder since it contains large files that are not stored in github
-      # the syncs assume the static site output is in ./public
+      # sync without deleting the `video/` folder since it contains large files that are not stored in github
+      # the syncs assume the static site output is in `./public`.
       - name: Sync to S3
         run: |
           aws s3 sync ./public s3://${{ vars.AWS_BUCKET_NAME }} \
             --delete \
+            --size-only \
             --exclude "video/*" \
             --cache-control "public, max-age=31536000, immutable" \
             --exclude "*.html" \
@@ -65,6 +66,7 @@ jobs:
 
           # HTML files get a shorter cache so updates are picked up quickly
           aws s3 sync ./public s3://${{ vars.AWS_BUCKET_NAME }} \
+            --size-only \
             --exclude "*" \
             --include "*.html" \
             --include "service-worker.js" \
