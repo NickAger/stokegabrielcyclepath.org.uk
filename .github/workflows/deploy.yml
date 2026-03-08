@@ -43,7 +43,7 @@ jobs:
 
       # ── Build step — adjust or remove for your stack ─────────────────────
       # Examples:
-      #   Plain HTML: delete this step entirely
+      #   Plain HTML: This this step is not required (currently stokegrabrielcyclepath.org.uk site is plain HTML, so this step is commented out)
       #   Jekyll:     run: bundle exec jekyll build
       #   Next.js:    run: npm ci && npm run build
       # - name: Build
